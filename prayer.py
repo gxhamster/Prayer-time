@@ -29,15 +29,18 @@ def parse_json(url):
 def getPrayerData(month, year, method):
     latitude, longitude = getCoordinate()
     relevantPrayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']
-    prayer_times = []
+    prayer_times = {}
     URL = 'http://api.aladhan.com/v1/calendar?latitude={}&longitude={}&method={}&month={}&year={}'.format(latitude, longitude, method, month, year)
     json_data = parse_json(URL)
     date = datetime.datetime.today().day
     # date - 1 because the days are in 0 index in json result
+
+    # ISSUES: Sometimes get a none type
     prayers = json_data['data'][date - 1]['timings']
+
     for key, value in prayers.items():
         if key in relevantPrayers:
-            prayer_times.append(prayers[key])
+            prayer_times.setdefault(key, value[:5])
         else:
             continue
 
@@ -47,30 +50,3 @@ def beautify(prayer_times):
     print('Date: ' + str(datetime.datetime.today()))
     for keys, values in prayer_times.items():
         print(keys + ': ', values.rjust(18))
-
-# TODO: Clean up this function
-def nextPrayer(prayer_times):
-    prayers = []
-    tDay = datetime.datetime.today()
-    tHour = tDay.hour
-    tMin = tDay.minute
-    for k, v in prayer_times.items():
-        pHour = int(v[0:2])
-        pMin = int(v[3:5])
-        lis = [pHour, pMin]
-        prayers.append(lis)
-
-    for prayer in prayers:
-        nearest_difference = 99999
-        difference = abs((prayer[0] - tHour + prayer[1] - tMin))
-        if (difference) < nearest_difference:
-            nearest_difference = difference
-        print(nearest_difference)
-
-
-
-
-print(getPrayerData(7, 2019, 3))
-# print(beautify(getPrayerData(7, 2019, 3)))
-# print(nextPrayer(getPrayerData(7, 2019, 2)))
-# print(getCoordinate())
