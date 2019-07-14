@@ -50,3 +50,40 @@ def beautify(prayer_times):
     print('Date: ' + str(datetime.datetime.today()))
     for keys, values in prayer_times.items():
         print(keys + ': ', values.rjust(18))
+
+
+def findNearestPrayer(prayer_times):
+    tHour = datetime.datetime.today().hour
+    # All prayer data in a list cause i like lists
+    prayers = []
+    for k, v in prayer_times.items():
+        prayers.append([k, int(v[:2]),int(v[3:])])
+
+    # If next prayer is not fajr find out difference
+    def findDifference(tHour):
+        nearestDifference = 99999
+        difference = 0
+        nearestPrayer = ''
+        possiblePrayers = []
+
+        for prayer in prayers:
+            if prayer[1] > tHour or prayer[1] == tHour:
+                possiblePrayers.append(prayer)
+        for prayer in possiblePrayers:
+            difference = abs(tHour - prayer[1])
+            if difference < nearestDifference:
+                nearestDifference = difference
+                nearestPrayer = prayer[0]
+
+        return nearestPrayer
+
+
+    if tHour > prayers[4][1] or tHour < prayers[0][1]:
+        return prayers[0]
+
+    return findDifference(tHour)
+
+
+
+result = findNearestPrayer(getPrayerData(7, 2019, 2))
+print(result)
